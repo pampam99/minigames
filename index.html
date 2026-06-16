@@ -121,7 +121,7 @@ function backToList(){
 // GAME STATE
 let score=0,stamina=100,docsDone=0,gameRunning=false;
 let deadline=100,gameInterval,deadlineInterval,spawnInterval,diffInterval;
-let spawnRate=600,maxDocs=7,complaintChance=0.35;
+let spawnRate=500,maxDocs=10,complaintChance=0.35;
 
 function startGame(){
   score=0;stamina=100;docsDone=0;deadline=100;
@@ -163,48 +163,51 @@ function spawnItem(){
   const canvas=document.getElementById('game-canvas');
   const items=canvas.querySelectorAll('.doc-item,.complaint-item');
   if(items.length>=maxDocs)return;
-  const isComplaint=Math.random()<complaintChance;
-  const el=document.createElement('div');
-  const cw=canvas.offsetWidth,ch=canvas.offsetHeight;
-  const x=Math.random()*(cw-70)+5;
-  const y=Math.random()*(ch-80)+5;
-  if(isComplaint){
-    el.className='complaint-item';
-    const msgs=['Client complaint!','Revisi lagi!','Data salah!','Partner marah!','Deadline mepet!'];
-    el.textContent=msgs[Math.floor(Math.random()*msgs.length)];
-    el.style.left=x+'px';el.style.top=y+'px';
-    el.onclick=()=>{if(!gameRunning)return;el.remove();score+=5;updateStats();};
-    setTimeout(()=>{
-      if(el.parentNode&&gameRunning){
+  const toSpawn=Math.min(Math.floor(Math.random()*3)+1, maxDocs-items.length);
+  for(let i=0;i<toSpawn;i++){
+    const isComplaint=Math.random()<complaintChance;
+    const cw=canvas.offsetWidth,ch=canvas.offsetHeight;
+    const el=document.createElement('div');
+    const x=Math.random()*(cw-70)+5;
+    const y=Math.random()*(ch-80)+5;
+    if(isComplaint){
+      el.className='complaint-item';
+      const msgs=['Client complaint!','Revisi lagi!','Data salah!','Partner marah!','Deadline mepet!','Mana workpapernya?!','Senior nanya nih!'];
+      el.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+      el.style.left=x+'px';el.style.top=y+'px';
+      el.onclick=()=>{if(!gameRunning)return;el.remove();score+=5;updateStats();};
+      setTimeout(()=>{
+        if(el.parentNode&&gameRunning){
+          el.remove();
+          stamina=Math.max(0,stamina-22);
+          updateStats();
+          if(stamina<=0)gameOver('burnout');
+        }
+      },1500);
+    } else {
+      el.className='doc-item';
+      const docs=['📄','📊','📋','🗂️','📁'];
+      el.innerHTML=`<span>${docs[Math.floor(Math.random()*docs.length)]}</span><small>klik!</small>`;
+      el.style.left=x+'px';el.style.top=y+'px';
+      el.onclick=()=>{
+        if(!gameRunning)return;
         el.remove();
-        stamina=Math.max(0,stamina-22);
-        updateStats();
-        if(stamina<=0)gameOver('burnout');
-      }
-    },1500);
-  } else {
-    el.className='doc-item';
-    const docs=['📄','📊','📋','🗂️'];
-    el.innerHTML=`<span>${docs[Math.floor(Math.random()*docs.length)]}</span><small>klik!</small>`;
-    el.style.left=x+'px';el.style.top=y+'px';
-    el.onclick=()=>{
-      if(!gameRunning)return;
-      el.remove();
-      docsDone++;score+=10;
-      deadline=Math.min(100,deadline+8);
-      stamina=Math.min(100,stamina+3);
-      updateStats();updateBar();
-    };
-    setTimeout(()=>{
-      if(el.parentNode&&gameRunning){
-        el.remove();
-        deadline=Math.max(0,deadline-15);
-        updateBar();
-        if(deadline<=0)gameOver('deadline');
-      }
-    },2000);
+        docsDone++;score+=10;
+        deadline=Math.min(100,deadline+8);
+        stamina=Math.min(100,stamina+3);
+        updateStats();updateBar();
+      };
+      setTimeout(()=>{
+        if(el.parentNode&&gameRunning){
+          el.remove();
+          deadline=Math.max(0,deadline-15);
+          updateBar();
+          if(deadline<=0)gameOver('deadline');
+        }
+      },2000);
+    }
+    canvas.appendChild(el);
   }
-  canvas.appendChild(el);
 }
 
 function updateStats(){
