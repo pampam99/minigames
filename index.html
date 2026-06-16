@@ -121,7 +121,7 @@ function backToList(){
 // GAME STATE
 let score=0,stamina=100,docsDone=0,gameRunning=false;
 let deadline=100,gameInterval,deadlineInterval,spawnInterval,diffInterval;
-let spawnRate=1800,maxDocs=4,complaintChance=0.3;
+let spawnRate=600,maxDocs=7,complaintChance=0.35;
 
 function startGame(){
   score=0;stamina=100;docsDone=0;deadline=100;
@@ -132,8 +132,8 @@ function startGame(){
   updateStats();
   updateBar();
   spawnInterval=setInterval(spawnItem,spawnRate);
-  deadlineInterval=setInterval(tickDeadline,120);
-  diffInterval=setInterval(increaseDiff,8000);
+  deadlineInterval=setInterval(tickDeadline,80);
+  diffInterval=setInterval(increaseDiff,5000);
 }
 
 function stopGame(){
@@ -151,8 +151,9 @@ function tickDeadline(){
 }
 
 function increaseDiff(){
-  spawnRate=Math.max(700,spawnRate-200);
-  complaintChance=Math.min(0.55,complaintChance+0.05);
+  spawnRate=Math.max(300,spawnRate-150);
+  complaintChance=Math.min(0.6,complaintChance+0.05);
+  maxDocs=Math.min(10,maxDocs+1);
   clearInterval(spawnInterval);
   spawnInterval=setInterval(spawnItem,spawnRate);
 }
@@ -176,11 +177,11 @@ function spawnItem(){
     setTimeout(()=>{
       if(el.parentNode&&gameRunning){
         el.remove();
-        stamina=Math.max(0,stamina-18);
+        stamina=Math.max(0,stamina-22);
         updateStats();
         if(stamina<=0)gameOver('burnout');
       }
-    },2200);
+    },1500);
   } else {
     el.className='doc-item';
     const docs=['📄','📊','📋','🗂️'];
@@ -197,11 +198,11 @@ function spawnItem(){
     setTimeout(()=>{
       if(el.parentNode&&gameRunning){
         el.remove();
-        deadline=Math.max(0,deadline-12);
+        deadline=Math.max(0,deadline-15);
         updateBar();
         if(deadline<=0)gameOver('deadline');
       }
-    },3000);
+    },2000);
   }
   canvas.appendChild(el);
 }
