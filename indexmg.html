@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Games — Faiz Wibowo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f7;color:#1a1a1a;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:0.5px solid #e0e0d8;background:#fff}
+.nav-logo{font-size:15px;font-weight:500}
+.nav-back{font-size:13px;color:#888;text-decoration:none}
+.nav-back:hover{color:#1a1a1a}
+.page{display:none}
+.page.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* GAME LIST */
+.game-list{max-width:600px;margin:3rem auto;padding:0 2rem}
+.game-list h1{font-size:22px;font-weight:500;margin-bottom:8px}
+.game-list p{font-size:14px;color:#888;margin-bottom:2rem;line-height:1.6}
+.game-card{border:0.5px solid #e0e0d8;border-radius:12px;padding:1.25rem;margin-bottom:12px;background:#fff;cursor:pointer;transition:border-color 0.2s;display:flex;align-items:center;gap:16px}
+.game-card:hover{border-color:#D85A30}
+.game-card .icon{width:52px;height:52px;border-radius:10px;background:#FAECE7;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.game-card h3{font-size:14px;font-weight:500;margin-bottom:4px}
+.game-card p{font-size:13px;color:#666;line-height:1.5}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:#FAECE7;color:#993C1D;margin-bottom:6px}
+
+/* AUDITOR SURVIVAL GAME */
+#game-auditor{max-width:500px;margin:2rem auto;padding:0 2rem}
+.game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.game-header h2{font-size:16px;font-weight:500}
+.back-game{font-size:13px;color:#888;cursor:pointer;border:none;background:none;font-family:inherit}
+.back-game:hover{color:#1a1a1a}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+.stat{background:#f5f5f0;border-radius:8px;padding:10px;text-align:center}
+.stat-label{font-size:11px;color:#888;margin-bottom:2px}
+.stat-val{font-size:18px;font-weight:500}
+.stat-val.red{color:#D85A30}
+.stat-val.green{color:#1D9E75}
+#game-canvas{width:100%;height:320px;border-radius:12px;border:0.5px solid #e0e0d8;background:#fff;position:relative;overflow:hidden;cursor:pointer}
+.doc-item{position:absolute;width:52px;height:60px;border-radius:8px;background:#EEEDFE;border:0.5px solid #AFA9EC;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.1s;user-select:none}
+.doc-item:hover{transform:scale(1.05)}
+.doc-item span{font-size:20px}
+.doc-item small{font-size:9px;color:#534AB7;margin-top:2px}
+.complaint-item{position:absolute;background:#FAECE7;border:0.5px solid #F0997B;border-radius:8px;padding:6px 10px;font-size:11px;color:#993C1D;cursor:pointer;white-space:nowrap}
+.deadline-bar-wrap{background:#f5f5f0;border-radius:20px;height:10px;margin-bottom:1rem;overflow:hidden}
+.deadline-bar{height:10px;border-radius:20px;background:#1D9E75;transition:width 0.3s,background 0.3s}
+.game-msg{text-align:center;padding:2rem;font-size:14px;color:#666}
+.start-btn{display:block;margin:1rem auto;padding:10px 28px;border-radius:8px;border:0.5px solid #d0d0c8;background:#1a1a1a;color:#fff;cursor:pointer;font-size:14px;font-family:inherit}
+.start-btn:hover{background:#333}
+</style>
+</head>
+<body>
+
+<!-- GAME LIST PAGE -->
+<div class="page active" id="page-list">
+  <nav>
+    <span class="nav-logo">🎮 mini games</span>
+    <a href="https://faizwibowo.vercel.app" class="nav-back">← back to faizwibowo.id</a>
+  </nav>
+  <div class="game-list">
+    <h1>Mini Games</h1>
+    <p>Sudut paling ga penting dari universe Faiz Wibowo. Tapi ya, siapa yang nolak main game? 👾</p>
+    <div class="game-card" onclick="openGame('auditor')">
+      <div class="icon">🏃</div>
+      <div>
+        <span class="badge">Casual</span>
+        <h3>Auditor Survival</h3>
+        <p>Klik dokumen secepet mungkin, hindarin client complaint, jangan sampe burnout. Survive selama mungkin!</p>
+      </div>
+    </div>
+    <div class="game-card" style="opacity:0.4;cursor:default;pointer-events:none">
+      <div class="icon" style="background:#f5f5f0;font-size:20px">🔒</div>
+      <div>
+        <span class="badge" style="background:#f5f5f0;color:#888">Coming soon</span>
+        <h3>???</h3>
+        <p>Game berikutnya lagi diracik. Stay tuned.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDITOR SURVIVAL GAME -->
+<div class="page" id="page-auditor">
+  <nav>
+    <span class="nav-logo">🏃 Auditor Survival</span>
+    <button class="back-game" onclick="backToList()">← semua game</button>
+  </nav>
+  <div id="game-auditor">
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Skor</div><div class="stat-val green" id="score">0</div></div>
+      <div class="stat"><div class="stat-label">Stamina</div><div class="stat-val" id="stamina-val">100</div></div>
+      <div class="stat"><div class="stat-label">Docs</div><div class="stat-val" id="docs-done">0</div></div>
+    </div>
+    <div class="deadline-bar-wrap">
+      <div class="deadline-bar" id="deadline-bar" style="width:100%"></div>
+    </div>
+    <div id="game-canvas">
+      <div class="game-msg" id="game-msg">
+        <p style="font-size:28px;margin-bottom:8px">🏃</p>
+        <p style="font-weight:500;margin-bottom:6px">Auditor Survival</p>
+        <p style="font-size:12px;color:#888;margin-bottom:16px">Klik dokumen biru secepet mungkin.<br>Hindarin complaint merah atau stamina lo habis!</p>
+        <button class="start-btn" onclick="startGame()">Mulai kerja!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openGame(g){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+g).classList.add('active');
+}
+function backToList(){
+  stopGame();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-list').classList.add('active');
+}
+
+// GAME STATE
+let score=0,stamina=100,docsDone=0,gameRunning=false;
+let deadline=100,gameInterval,deadlineInterval,spawnInterval,diffInterval;
+let spawnRate=1800,maxDocs=4,complaintChance=0.3;
+
+function startGame(){
+  score=0;stamina=100;docsDone=0;deadline=100;
+  spawnRate=1800;maxDocs=4;complaintChance=0.3;
+  gameRunning=true;
+  const canvas=document.getElementById('game-canvas');
+  canvas.innerHTML='';
+  updateStats();
+  updateBar();
+  spawnInterval=setInterval(spawnItem,spawnRate);
+  deadlineInterval=setInterval(tickDeadline,120);
+  diffInterval=setInterval(increaseDiff,8000);
+}
+
+function stopGame(){
+  gameRunning=false;
+  clearInterval(spawnInterval);
+  clearInterval(deadlineInterval);
+  clearInterval(diffInterval);
+}
+
+function tickDeadline(){
+  if(!gameRunning)return;
+  deadline=Math.max(0,deadline-1);
+  updateBar();
+  if(deadline<=0)gameOver('deadline');
+}
+
+function increaseDiff(){
+  spawnRate=Math.max(700,spawnRate-200);
+  complaintChance=Math.min(0.55,complaintChance+0.05);
+  clearInterval(spawnInterval);
+  spawnInterval=setInterval(spawnItem,spawnRate);
+}
+
+function spawnItem(){
+  if(!gameRunning)return;
+  const canvas=document.getElementById('game-canvas');
+  const items=canvas.querySelectorAll('.doc-item,.complaint-item');
+  if(items.length>=maxDocs)return;
+  const isComplaint=Math.random()<complaintChance;
+  const el=document.createElement('div');
+  const cw=canvas.offsetWidth,ch=canvas.offsetHeight;
+  const x=Math.random()*(cw-70)+5;
+  const y=Math.random()*(ch-80)+5;
+  if(isComplaint){
+    el.className='complaint-item';
+    const msgs=['Client complaint!','Revisi lagi!','Data salah!','Partner marah!','Deadline mepet!'];
+    el.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    el.style.left=x+'px';el.style.top=y+'px';
+    el.onclick=()=>{if(!gameRunning)return;el.remove();score+=5;updateStats();};
+    setTimeout(()=>{
+      if(el.parentNode&&gameRunning){
+        el.remove();
+        stamina=Math.max(0,stamina-18);
+        updateStats();
+        if(stamina<=0)gameOver('burnout');
+      }
+    },2200);
+  } else {
+    el.className='doc-item';
+    const docs=['📄','📊','📋','🗂️'];
+    el.innerHTML=`<span>${docs[Math.floor(Math.random()*docs.length)]}</span><small>klik!</small>`;
+    el.style.left=x+'px';el.style.top=y+'px';
+    el.onclick=()=>{
+      if(!gameRunning)return;
+      el.remove();
+      docsDone++;score+=10;
+      deadline=Math.min(100,deadline+8);
+      stamina=Math.min(100,stamina+3);
+      updateStats();updateBar();
+    };
+    setTimeout(()=>{
+      if(el.parentNode&&gameRunning){
+        el.remove();
+        deadline=Math.max(0,deadline-12);
+        updateBar();
+        if(deadline<=0)gameOver('deadline');
+      }
+    },3000);
+  }
+  canvas.appendChild(el);
+}
+
+function updateStats(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('stamina-val').textContent=stamina;
+  document.getElementById('docs-done').textContent=docsDone;
+  const sv=document.getElementById('stamina-val');
+  sv.className='stat-val'+(stamina<30?' red':stamina>60?' green':'');
+}
+
+function updateBar(){
+  const bar=document.getElementById('deadline-bar');
+  bar.style.width=deadline+'%';
+  bar.style.background=deadline>50?'#1D9E75':deadline>25?'#EF9F27':'#D85A30';
+}
+
+function gameOver(reason){
+  stopGame();
+  const canvas=document.getElementById('game-canvas');
+  canvas.innerHTML=`
+    <div class="game-msg">
+      <p style="font-size:28px;margin-bottom:8px">${reason==='burnout'?'😵':'⏰'}</p>
+      <p style="font-weight:500;margin-bottom:4px">${reason==='burnout'?'Burnout!':'Deadline missed!'}</p>
+      <p style="font-size:13px;color:#888;margin-bottom:4px">Skor: <strong>${score}</strong></p>
+      <p style="font-size:13px;color:#888;margin-bottom:16px">Dokumen selesai: <strong>${docsDone}</strong></p>
+      <button class="start-btn" onclick="startGame()">Coba lagi!</button>
+    </div>`;
+}
+</script>
+</body>
+</html>
